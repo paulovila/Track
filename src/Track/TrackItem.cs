@@ -16,7 +16,7 @@ namespace Track
             Original = original;
             _parent = parent;
             Modified = (T)original?.Clone();
-            if (Modified != null) 
+            if (Modified != null)
                 Modified.PropertyChanged += Modified_PropertyChanged;
         }
         public bool HasChanges => GetHasChanges(Original);
@@ -24,7 +24,7 @@ namespace Track
         {
             var a = p.GetValue(Modified);
             var b = p.GetValue(item);
-            return a != b;
+            return !a?.Equals(b) ?? b != null;
         });
         public T Modified { get; }
         public TrackItems<T> Parent { get; set; }
