@@ -10,7 +10,7 @@ namespace Track.SampleWpfCore
         private TrackItems<E1> _items;
         public MainWindowViewModel()
         {
-            ResetCommand = new Command(() => Items = new[] { new E1 { P1 = "A" }, new E1 { P1 = "B" } }.ToTrackItems());
+            ResetCommand = new Command(() => Items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "B" } }.ToTrackItems());
             ResetCommand.Execute(null);
             AddCommand = new Command(() => Items.Add(new E1 {P1 = "X"}.ToTrack()));
             RemoveCommand = new Command(() => Items.Remove(Current));

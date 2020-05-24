@@ -15,7 +15,7 @@ namespace Track
         {
             Original = original;
             _parent = parent;
-            Modified = (T) original?.Clone();
+            Modified = (T)original?.Clone();
             if (Modified != null)
                 Modified.PropertyChanged += Modified_PropertyChanged;
         }
@@ -28,8 +28,8 @@ namespace Track
         internal bool GetHasChanges(T item) =>
             _parent.Properties.Any(p =>
             {
-                var a = p.GetValue(Modified);
-                var b = p.GetValue(item);
+                var a = Modified == null ? null : p.GetValue(Modified);
+                var b = item == null ? null : p.GetValue(item);
                 return !a?.Equals(b) ?? b != null;
             });
 
