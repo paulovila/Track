@@ -46,7 +46,10 @@ namespace Track
             {
                 var similarTrackItemChanged = trackItemsChanged.FirstOrDefault(w => !w.GetHasChanges(originalChanged));
                 if (similarTrackItemChanged != null)
+                {
+                    similarTrackItemChanged.ResetOriginal(originalChanged);
                     trackItemsChanged.Remove(similarTrackItemChanged);
+                }
             }
             return trackItemsChanged.Any();
         }

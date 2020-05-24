@@ -9,7 +9,7 @@ namespace Track
         where T : INotifyPropertyChanged, ICloneable
     {
         private readonly TrackItems<T> _parent;
-        internal readonly T Original;
+        internal T Original;
 
         public TrackItem(T original, TrackItems<T> parent)
         {
@@ -41,5 +41,11 @@ namespace Track
 
         private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+
+        public void ResetOriginal(T originalChanged) 
+        {
+            Original = originalChanged;
+            OnPropertyChanged(nameof(HasChanges));
+        }
     }
 }
