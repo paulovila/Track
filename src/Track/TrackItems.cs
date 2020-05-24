@@ -32,7 +32,8 @@ namespace Track
             CollectionChanged += RaiseHasCollectionChanges;
         }
 
-        public bool HasCollectionChanges => this.Where(w => w.Original != null && _originalItems.Contains(w.Original)).Any(i => i.HasChanges)
+        public bool HasCollectionChanges => this.Where(w => w.Original != null && _originalItems.Contains(w.Original))
+                                                .Any(i => i.HasChanges)
                                             ||
                                             Count != _originalItems.Length
                                             ||

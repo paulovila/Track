@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -81,6 +82,20 @@ namespace Track.UnitTests
             sut[0].Modified.P1 = "A1";
             Assert.IsTrue(sut.HasCollectionChanges);
             sut[0].Modified.P1 = "A";
+            Assert.IsFalse(sut.HasCollectionChanges);
+        }
+        [TestMethod]
+        public void ShouldNotHaveChangesAfterAnElementIsReplaced()
+        {
+            var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "B" } };
+            var sut = items.ToTrackItems();
+            Assert.IsFalse(sut.HasCollectionChanges);
+            sut.Remove(sut.Last());
+            Assert.IsTrue(sut.HasCollectionChanges);
+            var item3 = new E1 { P1 = "X" }.ToTrack();
+            sut.Add(item3);
+            Assert.IsTrue(sut.HasCollectionChanges);
+            item3.Modified.P1 = "B";
             Assert.IsFalse(sut.HasCollectionChanges);
         }
 
