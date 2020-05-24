@@ -32,7 +32,7 @@ namespace Track
             CollectionChanged += RaiseHasCollectionChanges;
         }
 
-        public bool HasCollectionChanges => this.Where(w => w.Original != null).Any(i => i.HasChanges)
+        public bool HasCollectionChanges => this.Where(w => w.Original != null && _originalItems.Contains(w.Original)).Any(i => i.HasChanges)
                                             ||
                                             Count != _originalItems.Length
                                             ||
@@ -40,18 +40,23 @@ namespace Track
 
         private bool ItemsChanged()
         {
-            var originalsChanged = _originalItems.Where(w => !this.Select(g => g.Original).Contains(w));
+            var originalsChanged = _originalItems.Where(w => !this.Select(g => g.Original).Contains(w)).ToList();
             var trackItemsChanged = this.Where(w => w != null && !_originalItems.Contains(w.Original)).ToList();
             foreach (var originalChanged in originalsChanged)
             {
-                var similarTrackItemChanged = trackItemsChanged.FirstOrDefault(w => w.GetHasChanges(originalChanged));
-                if (similarTrackItemChanged == null)
-                    return true;
-                trackItemsChanged.Remove(similarTrackItemChanged);
+                var similarTrackItemChanged = trackItemsChanged.FirstOrDefault(w => !w.GetHasChanges(originalChanged));
+                if (similarTrackItemChanged != null)
+                    trackItemsChanged.Remove(similarTrackItemChanged);
             }
             return trackItemsChanged.Any();
         }
         public void RaiseHasCollectionChanges(object sender, NotifyCollectionChangedEventArgs e) =>
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
+
+        public new void Add(TrackItem<T> item)
+        {
+            item.Parent = this;
+            base.Add(item);
+        }
     }
 }

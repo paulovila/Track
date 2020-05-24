@@ -10,18 +10,19 @@
         <local:MainWindowViewModel/>
     </Window.DataContext>
     <StackPanel>
-        <ListBox ItemsSource="{Binding Items}">
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding Current}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <TextBox Text="{Binding Modified.P1, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <TextBlock>has changes: <Run Text="{Binding HasChanges, Mode=OneWay}"/></TextBlock>
+                        <TextBox Text="{Binding Modified.P1, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                        <TextBlock>has changes: <Run Text="{Binding HasChanges, Mode=OneWay}"/></TextBlock> 
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
-
         </ListBox>
         <TextBlock>Collection has changes: <Run Text="{Binding Items.HasCollectionChanges, Mode=OneWay}"></Run></TextBlock>
-
+        <Button Content="Remove Selected" Command="{Binding RemoveCommand}" HorizontalAlignment="Left"/>
+        <Button Content="Add" Command="{Binding AddCommand}" HorizontalAlignment="Left"/>
+        <Button Content="Reset" Command="{Binding ResetCommand}" HorizontalAlignment="Left"/>
     </StackPanel>
 </Window>
