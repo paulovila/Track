@@ -32,7 +32,7 @@ namespace Track
             CollectionChanged += RaiseHasCollectionChanges;
         }
 
-        public bool HasCollectionChanges => this.Any(i => i.HasChanges)
+        public bool HasCollectionChanges => this.Where(w => w.Original != null).Any(i => i.HasChanges)
                                             ||
                                             Count != _originalItems.Length
                                             ||
@@ -41,7 +41,7 @@ namespace Track
         private bool ItemsChanged()
         {
             var originalsChanged = _originalItems.Where(w => !this.Select(g => g.Original).Contains(w));
-            var trackItemsChanged = this.Where(w => !_originalItems.Contains(w.Original)).ToList();
+            var trackItemsChanged = this.Where(w => w != null && !_originalItems.Contains(w.Original)).ToList();
             foreach (var originalChanged in originalsChanged)
             {
                 var similarTrackItemChanged = trackItemsChanged.FirstOrDefault(w => w.GetHasChanges(originalChanged));

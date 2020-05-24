@@ -23,18 +23,7 @@ namespace Track.UnitTests
             sut.Modified.P1 = "A";
             Assert.IsFalse(sut.HasChanges);
         }
-        [TestMethod]
-        public void SomePropertiesShouldHaveChangesInCollection()
-        {
-            var items = new[] { new E1 { P1 = "A" }, new E1 { P1 = "A" } };
-            var sut = items.ToTrackItems(new Expression<Func<E1, object>>[] { w => w.P1 });
 
-            Assert.IsFalse(sut.HasCollectionChanges);
-            sut[0].Modified.P1 = "A1";
-            Assert.IsTrue(sut.HasCollectionChanges);
-            sut[0].Modified.P1 = "A";
-            Assert.IsFalse(sut.HasCollectionChanges);
-        }
         [TestMethod]
         public void ShouldHaveChanges()
         {
@@ -48,6 +37,18 @@ namespace Track.UnitTests
             Assert.IsFalse(sut.HasChanges);
         }
         [TestMethod]
+        public void SomePropertiesShouldHaveChangesInCollection()
+        {
+            var items = new[] { new E1 { P1 = "A" }, new E1 { P1 = "A" } };
+            var sut = items.ToTrackItems(new Expression<Func<E1, object>>[] { w => w.P1 });
+
+            Assert.IsFalse(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A1";
+            Assert.IsTrue(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A";
+            Assert.IsFalse(sut.HasCollectionChanges);
+        }
+        [TestMethod]
         public void ShouldHaveChangesInCollection()
         {
             var items = new[] { new E1 { P1 = "A" }, new E1 { P1 = "A", E = new E1() } };
@@ -58,6 +59,31 @@ namespace Track.UnitTests
             sut[0].Modified.P1 = "A";
             Assert.IsFalse(sut.HasCollectionChanges);
         }
+
+        [TestMethod]
+        public void SomePropertiesShouldHaveChangesInCollectionWithNullElement()
+        {
+            var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "A" } };
+            var sut = items.ToTrackItems(new Expression<Func<E1, object>>[] { w => w.P1 });
+
+            Assert.IsFalse(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A1";
+            Assert.IsTrue(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A";
+            Assert.IsFalse(sut.HasCollectionChanges);
+        }
+        [TestMethod]
+        public void ShouldHaveChangesInCollectionWithNullElement()
+        {
+            var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "A", E = new E1() } };
+            var sut = items.ToTrackItems();
+            Assert.IsFalse(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A1";
+            Assert.IsTrue(sut.HasCollectionChanges);
+            sut[0].Modified.P1 = "A";
+            Assert.IsFalse(sut.HasCollectionChanges);
+        }
+
         public class E1 : INotifyPropertyChanged, ICloneable
         {
             public string P1 { get; set; }
