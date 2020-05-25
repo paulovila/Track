@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 
 namespace Track
@@ -14,19 +12,12 @@ namespace Track
         internal readonly PropertyInfo[] Properties;
         private readonly T[] _originalItems;
 
-        public TrackItems(T[] items, Expression<Func<T, object>>[] trackPropertyExpressions)
+        public TrackItems(T[] items, PropertyInfo[] trackProperties)
         {
-            var l = new List<PropertyInfo>();
             _originalItems = items;
-            if (trackPropertyExpressions != null)
-                l.AddRange(trackPropertyExpressions
-                    .Select(propertyExpression => propertyExpression.Body as MemberExpression)
-                    .Select(expression => expression.Member as PropertyInfo));
-            else
-                l.AddRange(typeof(T).GetProperties()
-                    .Where(w => w.SetMethod != null));
-            Properties = l.ToArray();
-
+            Properties = trackProperties ?? typeof(T).GetProperties()
+                .Where(w => w.SetMethod != null).ToArray();
+            
             foreach (var item in items)
                 Add(new TrackItem<T>(item, this) { Parent = this });
             CollectionChanged += RaiseHasCollectionChanges;
@@ -62,5 +53,11 @@ namespace Track
             item.Parent = this;
             base.Add(item);
         }
+        public int ModifiedPropertiesCount() =>
+            this
+                .Where(w => w != null && w.HasChanges)
+                .Sum(trackObject =>
+                    Properties
+                        .Count(propertyInfo => trackObject.HasChangesPredicate(propertyInfo, trackObject.Original)));
     }
 }

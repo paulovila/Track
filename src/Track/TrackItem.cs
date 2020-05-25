@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 
 namespace Track
@@ -26,12 +27,14 @@ namespace Track
         public event PropertyChangedEventHandler PropertyChanged;
 
         internal bool GetHasChanges(T item) =>
-            _parent.Properties.Any(p =>
-            {
-                var a = Modified == null ? null : p.GetValue(Modified);
-                var b = item == null ? null : p.GetValue(item);
-                return !a?.Equals(b) ?? b != null;
-            });
+            _parent.Properties.Any(p => HasChangesPredicate(p, item));
+
+        internal bool HasChangesPredicate(PropertyInfo p, T item)
+        {
+            var a = Modified == null ? null : p.GetValue(Modified);
+            var b = item == null ? null : p.GetValue(item);
+            return !a?.Equals(b) ?? b != null;
+        }
 
         private void Modified_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -42,7 +45,7 @@ namespace Track
         private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
-        public void ResetOriginal(T originalChanged) 
+        public void ResetOriginal(T originalChanged)
         {
             Original = originalChanged;
             OnPropertyChanged(nameof(HasChanges));

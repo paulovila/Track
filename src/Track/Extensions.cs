@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Track
 {
     public static class Extensions
     {
         public static TrackItem<T> ToTrack<T>(this T item,
-            Expression<Func<T, object>>[] trackPropertyExpressions = null)
+            PropertyInfo[] trackProperties = null)
             where T : INotifyPropertyChanged, ICloneable =>
-            new TrackItem<T>(item, new TrackItems<T>(new[] { item }, trackPropertyExpressions));
+            new TrackItem<T>(item, new TrackItems<T>(new[] { item }, trackProperties));
 
         public static TrackItems<T> ToTrackItems<T>(this IEnumerable<T> items,
-            Expression<Func<T, object>>[] trackPropertyExpressions = null)
+            PropertyInfo[] trackProperties = null)
             where T : INotifyPropertyChanged, ICloneable =>
-            new TrackItems<T>(items.ToArray(), trackPropertyExpressions);
+            new TrackItems<T>(items.ToArray(), trackProperties);
     }
 }
