@@ -9,7 +9,7 @@ namespace Track
     public class TrackItem<T> : INotifyPropertyChanged
         where T : INotifyPropertyChanged, ICloneable
     {
-        internal T Original;
+        public T Original;
 
         public TrackItem(T original, TrackItems<T> parent)
         {
