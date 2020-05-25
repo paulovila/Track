@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -20,7 +19,7 @@ namespace Track
 
             foreach (var item in items)
                 Add(new TrackItem<T>(item, this) { Parent = this });
-            CollectionChanged += RaiseHasCollectionChanges;
+            CollectionChanged += (s, e) => RaiseHasCollectionChanges(null, null);
         }
 
         public bool HasCollectionChanges => this.Where(w => w.Original != null && _originalItems.Contains(w.Original))
@@ -45,8 +44,13 @@ namespace Track
             }
             return trackItemsChanged.Any();
         }
-        public void RaiseHasCollectionChanges(object sender, NotifyCollectionChangedEventArgs e) =>
+        public void RaiseHasCollectionChanges(TrackItem<T> item, string propertyName)
+        {
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
+            if (item != null && propertyName != null)
+                ItemPropertyChanged?.Invoke(this, new TrackItemEvent<T> { Item = item, PropertyNameChanged = propertyName });
+        }
+        public EventHandler<TrackItemEvent<T>> ItemPropertyChanged { get; set; }
 
         public new void Add(TrackItem<T> item)
         {

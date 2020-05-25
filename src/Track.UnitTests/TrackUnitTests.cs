@@ -132,9 +132,31 @@ namespace Track.UnitTests
             Assert.AreEqual(3, modified.Count);
         }
 
+        [TestMethod]
+        public void ShouldNotifyItemPropertyChanged()
+        {
+            var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "B" } };
+            var sut = items.ToTrackItems();
+            int called = 0;
+            sut.ItemPropertyChanged += (s, e) => called++;
+            sut[0].Modified.P1 = "S";
+            Assert.AreEqual(1, called);
+        }
+
         public class E1 : INotifyPropertyChanged, ICloneable
         {
-            public string P1 { get; set; }
+            private string _p1;
+
+            public string P1
+            {
+                get => _p1;
+                set
+                {
+                    _p1 = value;
+                    OnPropertyChanged();
+                }
+            }
+
             public string P2 { get; }
             public string P3 { get; set; }
             public E1 E { get; set; }
