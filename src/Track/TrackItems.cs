@@ -21,7 +21,7 @@ namespace Track
             if (trackPropertyExpressions != null)
                 l.AddRange(trackPropertyExpressions
                     .Select(propertyExpression => propertyExpression.Body as MemberExpression)
-                    .Select(expression => expression!.Member as PropertyInfo));
+                    .Select(expression => expression.Member as PropertyInfo));
             else
                 l.AddRange(typeof(T).GetProperties()
                     .Where(w => w.SetMethod != null));
