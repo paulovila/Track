@@ -123,6 +123,15 @@ namespace Track.UnitTests
             Assert.AreEqual(2, sut.ModifiedPropertiesCount());
         }
 
+        [TestMethod]
+        public void ShouldGetCollection()
+        {
+            var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "B" } };
+            var sut = items.ToTrackItems();
+            var modified = sut.GetCollection();
+            Assert.AreEqual(3, modified.Count);
+        }
+
         public class E1 : INotifyPropertyChanged, ICloneable
         {
             public string P1 { get; set; }

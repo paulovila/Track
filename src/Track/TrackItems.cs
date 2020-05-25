@@ -17,7 +17,7 @@ namespace Track
             _originalItems = items;
             Properties = trackProperties ?? typeof(T).GetProperties()
                 .Where(w => w.SetMethod != null).ToArray();
-            
+
             foreach (var item in items)
                 Add(new TrackItem<T>(item, this) { Parent = this });
             CollectionChanged += RaiseHasCollectionChanges;
@@ -59,5 +59,7 @@ namespace Track
                 .Sum(trackObject =>
                     Properties
                         .Count(propertyInfo => trackObject.HasChangesPredicate(propertyInfo, trackObject.Original)));
+
+        public ObservableCollection<T> GetCollection() => new ObservableCollection<T>(this.Select(w => w.Modified).ToList());
     }
 }
