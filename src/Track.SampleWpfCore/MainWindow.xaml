@@ -14,15 +14,25 @@
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <StackPanel Orientation="Horizontal">
-                        <TextBox Text="{Binding Modified.P1, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+                        <TextBlock Text="{Binding Original.P1}" Width="60" />
+                        <TextBlock Text="{Binding Modified.P1}" Width="60" />
                         <TextBlock>has changes: <Run Text="{Binding HasChanges, Mode=OneWay}"/></TextBlock> 
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
         <TextBlock>Collection has changes: <Run Text="{Binding Items.HasCollectionChanges, Mode=OneWay}"></Run></TextBlock>
-        <Button Content="Remove Selected" Command="{Binding RemoveCommand}" HorizontalAlignment="Left"/>
-        <Button Content="Add" Command="{Binding AddCommand}" HorizontalAlignment="Left"/>
-        <Button Content="Reset" Command="{Binding ResetCommand}" HorizontalAlignment="Left"/>
+        <StackPanel Orientation="Horizontal">
+            <Button Content="Add" Command="{Binding AddCommand}" />
+            <Button Content="Remove" Command="{Binding RemoveCommand}" />
+            <Button Content="Reset" Command="{Binding ResetCommand}" />
+        </StackPanel>
+        <TextBlock >Has Validations[<Run Text="{Binding Validate.HasValidations, Mode=OneWay}"/>]:<Run Text="{Binding Validate.FirstValidation, Mode=OneWay}" Foreground="Red"/></TextBlock>
+        <TextBlock Text="SelectedItem:"/>
+        <StackPanel Orientation="Horizontal" Background="DarkGray">
+            <TextBlock Text="{Binding Current.Original.P1}" Width="60" />
+            <TextBox Text="{Binding Current.Modified.P1, UpdateSourceTrigger=PropertyChanged}" Width="60" />
+            <TextBlock>has changes: <Run Text="{Binding Current.HasChanges, Mode=OneWay}"/></TextBlock>
+        </StackPanel>
     </StackPanel>
 </Window>

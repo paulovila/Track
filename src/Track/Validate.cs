@@ -35,6 +35,7 @@ namespace Track
                 if (_item != null && _item.Modified != null)
                 {
                     _item.PropertyChanged += OnItemPropertyChanged;
+                    Notify();
                 }
             }
         }

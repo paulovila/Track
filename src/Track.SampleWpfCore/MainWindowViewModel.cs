@@ -7,6 +7,7 @@ namespace Track.SampleWpfCore
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        public ValidateE1 Validate { get;  }
         private TrackItems<E1> _items;
         public MainWindowViewModel()
         {
@@ -14,6 +15,7 @@ namespace Track.SampleWpfCore
             ResetCommand.Execute(null);
             AddCommand = new Command(() => Items.Add(new E1 {P1 = "X"}.ToTrack()));
             RemoveCommand = new Command(() => Items.Remove(Current));
+            Validate = new ValidateE1();
         }
         public TrackItems<E1> Items
         {
@@ -24,7 +26,12 @@ namespace Track.SampleWpfCore
                 OnPropertyChanged();
             }
         }
-        public TrackItem<E1> Current { get; set; }
+        public TrackItem<E1> Current
+        {
+            get => Validate.Item;
+            set { Validate.Item = value; OnPropertyChanged();}
+        }
+
         public Command ResetCommand { get; }
         public Command RemoveCommand { get; }
         public Command AddCommand { get; }
