@@ -14,10 +14,8 @@ namespace Track
         private readonly Dictionary<string, (string, object[])> _errors;
         private bool _hasValidations;
 
-        public TrackItem()
-        {
-            _errors = new Dictionary<string, (string, object[])>();
-        }
+        public TrackItem() => _errors = new Dictionary<string, (string, object[])>();
+
         public bool HasValidations
         {
             get => _hasValidations;
@@ -60,6 +58,18 @@ namespace Track
                 OnRefreshErrors();
             HasValidations = IsModifiedNull || _errors.Any();
             OnPropertyChanged(nameof(Validations));
+        }
+
+        public IEnumerable<string> GetValidations(string path)
+        {
+            var prefix = path + "#";
+            return _errors.Keys
+                .Where(w => w.StartsWith(prefix))
+                .Select(key =>
+                {
+                    var (item1, objects) = _errors[key];
+                    return string.Format(item1, objects);
+                });
         }
     }
 
@@ -150,5 +160,6 @@ namespace Track
             UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
         }
         private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
+
     }
 }
