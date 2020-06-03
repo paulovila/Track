@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -140,6 +141,11 @@ namespace Track
             var verb = i == 1 ? "is" : "are";
             UpdateError(path, value.Count() < i, "At least {0} {1} {2} needed", i, entityName,
                 verb);
+        }
+        public void HasItemsMessage(Expression<Func<T, IEnumerable>> expression, string message)
+        {
+            var (path, value) = PathValue(expression);
+            UpdateError(path, value == null || !value.GetEnumerator().MoveNext(), message);
         }
     }
 }
