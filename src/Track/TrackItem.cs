@@ -27,14 +27,23 @@ namespace Track
                 OnPropertyChanged(nameof(FirstError));
             }
         }
+        protected void RaiseError(string propertyName)
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
+        }
 
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged = delegate { };
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         public string FirstError => Validations.FirstOrDefault();
         public IEnumerable<string> Validations => _errors.Values.Select(er => string.Format(er.Item1, er.Item2));
         public abstract bool IsModifiedNull { get; }
         public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            RaiseError(propertyName);
+        }
+
         protected void SetProperty<T>(ref T storage, T value, string propertyName = null)
         {
             if (EqualityComparer<T>.Default.Equals(storage, value))
@@ -62,6 +71,7 @@ namespace Track
                 OnRefreshErrors();
             HasErrors = IsModifiedNull || _errors.Any();
             OnPropertyChanged(nameof(Validations));
+            RaiseError(null);
         }
 
         public IEnumerable<string> GetValidations(string path)
