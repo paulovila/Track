@@ -88,7 +88,6 @@ namespace Track
             if (!IsModifiedNull)
                 Modified.PropertyChanged -= Modified_PropertyChanged;
         }
-
         internal bool GetHasChanges(T item) => Parent.Properties.Any(p => HasChangesPredicate(p, item));
         internal bool HasChangesPredicate(PropertyInfo p, T item)
         {
@@ -96,20 +95,17 @@ namespace Track
             var b = item == null ? null : p.GetValue(item);
             return !a?.Equals(b) ?? b != null;
         }
-
         private void Modified_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(HasChanges));
             Parent.RaiseHasCollectionChanges(this, e.PropertyName);
             Notify();
         }
-
         public void ResetOriginal(T originalChanged)
         {
             Original = originalChanged;
             OnPropertyChanged(nameof(HasChanges));
         }
-
         public void IsRequired(Expression<Func<T, object>> expression)
         {
             var (path, value) = PathValue(expression);
@@ -120,7 +116,6 @@ namespace Track
             var (path, value) = PathValue(expression);
             UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
         }
-
         public void IsRequiredMessage(Expression<Func<T, string>> expression, string message)
         {
             var (path, value) = PathValue(expression);
@@ -131,9 +126,6 @@ namespace Track
             var (path, value) = PathValue(expression);
             UpdateError(path, !string.IsNullOrEmpty(value) && value.ToUpperInvariant() != value, message);
         }
-
-        private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
-
         public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression, int i)
         {
             var (path, value) = PathValue(expression);
@@ -147,5 +139,16 @@ namespace Track
             var (path, value) = PathValue(expression);
             UpdateError(path, value == null || !value.GetEnumerator().MoveNext(), message);
         }
+        public void IsPositiveMessage(Expression<Func<T, int>> expression, string message)
+        {
+            var (path, value) = PathValue(expression);
+            UpdateError(path, value <= 0, message);
+        }
+        public void IsNotNegative(Expression<Func<T, decimal>> expression)
+        {
+            var (path, value) = PathValue(expression);
+            UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
+        }
+        private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
     }
 }
