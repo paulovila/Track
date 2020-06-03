@@ -27,7 +27,7 @@ namespace Track
         }
         public static string CapitalsIntoWords(this string text) => string.Join(" ", Regex.Split(text, @"(?<!^)(?=[A-Z])"));
 
-        public static string GetPropertyName<T>(this Expression<Func<T, object>> expression)
+        public static string GetPropertyName<T, TResult>(this Expression<Func<T, TResult>> expression)
         {
             var p = expression.Body is UnaryExpression body
                 ? (body.Operand is MemberExpression operand ? operand.Member : null) as PropertyInfo

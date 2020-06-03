@@ -118,6 +118,11 @@ namespace Track
             var path = propertyFunc.GetPropertyName();
             UpdateError(path, IsNullOrEmpty(propertyFunc.Compile()(Modified)), "{0} is required", path.Beautify());
         }
+        public void IsNotNegative(Expression<Func<T, int>> propertyFunc)
+        {
+            var path = propertyFunc.GetPropertyName();
+            UpdateError(path, propertyFunc.Compile()(Modified) < 0, "{0} should be not negative", path.Beautify());
+        }
 
         public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> itemsFunc, int i)
         {
