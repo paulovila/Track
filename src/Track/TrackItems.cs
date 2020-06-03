@@ -57,7 +57,7 @@ namespace Track
 
         public new void Add(TrackItem<T> item)
         {
-            item._parent = this;
+            item.Parent = this;
             base.Add(item);
         }
         public int ModifiedPropertiesCount() =>

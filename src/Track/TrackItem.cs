@@ -16,7 +16,7 @@ namespace Track
         public TrackItem()
         {
             _errors = new Dictionary<string, (string, object[])>();
-           }
+        }
         public bool HasValidations
         {
             get => _hasValidations;
@@ -47,7 +47,7 @@ namespace Track
             if (isError)
                 _errors[key] = (template, pars);
             else if (_errors.ContainsKey(key))
-                    _errors.Remove(key);
+                _errors.Remove(key);
         }
 
         internal bool IsNullOrEmpty(object obj) => obj == null || obj is string s && string.IsNullOrEmpty(s);
@@ -62,16 +62,16 @@ namespace Track
         }
     }
 
-    public  class TrackItem<T> : TrackItem
+    public class TrackItem<T> : TrackItem
         where T : INotifyPropertyChanged, ICloneable
     {
-        internal  TrackItems<T> _parent;
+        internal TrackItems<T> Parent;
 
         public TrackItem(T original, TrackItems<T> parent)
         {
-            _parent = parent;
+            Parent = parent;
             Original = original;
-            Modified = (T) original?.Clone();
+            Modified = (T)original?.Clone();
             if (Modified == null) return;
             Modified.PropertyChanged += Modified_PropertyChanged;
             Notify();
@@ -81,18 +81,14 @@ namespace Track
         public bool HasChanges => GetHasChanges(Original);
         public T Modified { get; }
         public override bool IsModifiedNull => Modified == null;
-        public override void OnRefreshErrors() => _parent.ValidationAction?.Invoke(this);
+        public override void OnRefreshErrors() => Parent.ValidationAction?.Invoke(this);
         ~TrackItem()
         {
             if (!IsModifiedNull)
                 Modified.PropertyChanged -= Modified_PropertyChanged;
         }
 
-        internal bool GetHasChanges(T item)
-        {
-            return _parent.Properties.Any(p => HasChangesPredicate(p, item));
-        }
-
+        internal bool GetHasChanges(T item) => Parent.Properties.Any(p => HasChangesPredicate(p, item));
         internal bool HasChangesPredicate(PropertyInfo p, T item)
         {
             var a = IsModifiedNull ? null : p.GetValue(Modified);
@@ -103,7 +99,7 @@ namespace Track
         private void Modified_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             OnPropertyChanged(nameof(HasChanges));
-            _parent.RaiseHasCollectionChanges(this, e.PropertyName);
+            Parent.RaiseHasCollectionChanges(this, e.PropertyName);
             Notify();
         }
 
@@ -113,23 +109,36 @@ namespace Track
             OnPropertyChanged(nameof(HasChanges));
         }
 
-        public void IsRequired(Expression<Func<T, object>> propertyFunc)
+        public void IsRequired(Expression<Func<T, object>> expression)
         {
-            var path = propertyFunc.GetPropertyName();
-            UpdateError(path, IsNullOrEmpty(propertyFunc.Compile()(Modified)), "{0} is required", path.Beautify());
+            var (path, value) = PathValue(expression);
+            UpdateError(path, IsNullOrEmpty(value), "{0} is required", path.Beautify());
         }
-        public void IsNotNegative(Expression<Func<T, int>> propertyFunc)
+        public void IsNotNegative(Expression<Func<T, int>> expression)
         {
-            var path = propertyFunc.GetPropertyName();
-            UpdateError(path, propertyFunc.Compile()(Modified) < 0, "{0} should be not negative", path.Beautify());
+            var (path, value) = PathValue(expression);
+            UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
         }
 
-        public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> itemsFunc, int i)
+        public void IsRequiredMessage(Expression<Func<T, string>> expression, string message)
         {
-            var path = itemsFunc.Body.ToString();
+            var (path, value) = PathValue(expression);
+            UpdateError(path, string.IsNullOrEmpty(value), message);
+        }
+        public void IsUpperCase(Expression<Func<T, string>> expression, string message)
+        {
+            var (path, value) = PathValue(expression);
+            UpdateError(path, !string.IsNullOrEmpty(value) && value.ToUpperInvariant() != value, message);
+        }
+
+        private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
+
+        public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression, int i)
+        {
+            var (path, value) = PathValue(expression);
             var entityName = typeof(TItem).Name;
             var verb = i == 1 ? "is" : "are";
-            UpdateError(path, itemsFunc.Compile()(Modified).Count() < i, "At least {0} {1} {2} needed", i, entityName,
+            UpdateError(path, value.Count() < i, "At least {0} {1} {2} needed", i, entityName,
                 verb);
         }
     }
