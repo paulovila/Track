@@ -9,12 +9,14 @@ using System.Runtime.CompilerServices;
 
 namespace Track
 {
-    public abstract class TrackItem : INotifyPropertyChanged
+    public abstract class TrackItem : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private readonly Dictionary<string, (string, object[])> _errors;
         private bool _hasErrors;
 
         public TrackItem() => _errors = new Dictionary<string, (string, object[])>();
+
+        public IEnumerable GetErrors(string propertyName) => GetValidations(propertyName);
 
         public bool HasErrors
         {
@@ -25,6 +27,8 @@ namespace Track
                 OnPropertyChanged(nameof(FirstError));
             }
         }
+
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
         public string FirstError => Validations.FirstOrDefault();
         public IEnumerable<string> Validations => _errors.Values.Select(er => string.Format(er.Item1, er.Item2));
@@ -62,6 +66,8 @@ namespace Track
 
         public IEnumerable<string> GetValidations(string path)
         {
+            if (path == null)
+                return Validations;
             var prefix = path + "#";
             return _errors.Keys
                 .Where(w => w.StartsWith(prefix))
