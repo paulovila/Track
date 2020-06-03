@@ -12,13 +12,13 @@ namespace Track.UnitTests
         {
             var sut = new E().ToTrack(q => q.IsRequired(w => w.P1));
 
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
 
             sut.Modified.P1 = "A";
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
 
             sut.Modified.P1 = null;
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
         }
 
         [TestMethod]
@@ -28,15 +28,15 @@ namespace Track.UnitTests
                 q.HasItemsMessage(w => w.Items, "message1"));
 
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
 
             sut.Modified.Items = new List<string>();
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
 
             sut.Modified.Items = new List<string> { "item1" };
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
         }
 
         [TestMethod]
@@ -49,15 +49,15 @@ namespace Track.UnitTests
             });
 
             Assert.AreEqual(2, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
 
             sut.Modified.Name = "www";
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
 
             sut.Modified.Name2 = "www";
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
         }
 
         [TestMethod]
@@ -71,13 +71,13 @@ namespace Track.UnitTests
             );
 
             Assert.AreEqual(2, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             sut.Modified.IntId = 1;
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             sut.Modified.DecimalId = 0;
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
         }
 
         [TestMethod]
@@ -87,13 +87,13 @@ namespace Track.UnitTests
                 t => t.IsPositiveMessage(w => w.IntId, "Message1"));
 
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             sut.Modified.IntId = 1;
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
             sut.Modified.IntId = -1;
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
         }
 
         [TestMethod]
@@ -102,13 +102,13 @@ namespace Track.UnitTests
             var sut = new TestEntity().ToTrack(t => t.IsUpperCase(w => w.Name, "Message1"));
 
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
             sut.Modified.Name = "ss";
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             sut.Modified.Name = "SS";
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
         }
 
         [TestMethod]
@@ -118,13 +118,13 @@ namespace Track.UnitTests
                 t.UpdateError("customRuleName", t.Modified.IntId % 2 == 0, "Id={0}, should be even", t.Modified.IntId));
 
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             sut.Modified.IntId++;
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
             sut.Modified.IntId++;
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
         }
 
         [TestMethod]
@@ -136,25 +136,25 @@ namespace Track.UnitTests
                 t.UpdateError("Name", t.Modified.Name == null || !t.Modified.Name.StartsWith("E"), "{0} should start with E", t.Modified.Name);
             });
 
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(3, sut.Validations.Count());
             Assert.AreEqual(1, sut.GetValidations("Items").Count());
             Assert.AreEqual(2, sut.GetValidations("Name").Count());
 
             sut.Modified.Items = new List<string> { "item" };
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(2, sut.Validations.Count());
             Assert.AreEqual(0, sut.GetValidations("Items").Count());
             Assert.AreEqual(2, sut.GetValidations("Name").Count());
 
             sut.Modified.Name = "aaa";
-            Assert.IsTrue(sut.HasValidations);
+            Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(1, sut.Validations.Count());
             Assert.AreEqual(0, sut.GetValidations("Items").Count());
             Assert.AreEqual(1, sut.GetValidations("Name").Count());
 
             sut.Modified.Name = "Es";
-            Assert.IsFalse(sut.HasValidations);
+            Assert.IsFalse(sut.HasErrors);
             Assert.AreEqual(0, sut.Validations.Count());
             Assert.AreEqual(0, sut.GetValidations("Items").Count());
             Assert.AreEqual(0, sut.GetValidations("Name").Count());

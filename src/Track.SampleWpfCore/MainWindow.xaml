@@ -27,7 +27,7 @@
             <Button Content="Remove" Command="{Binding RemoveCommand}" />
             <Button Content="Reset" Command="{Binding ResetCommand}" />
         </StackPanel>
-        <TextBlock>Has Validations[<Run Text="{Binding Current.HasValidations, Mode=OneWay}"/>]:<Run Text="{Binding Current.FirstValidation, Mode=OneWay}" Foreground="Red"/></TextBlock>
+        <TextBlock>Has Validations[<Run Text="{Binding Current.HasErrors, Mode=OneWay}"/>]:<Run Text="{Binding Current.FirstError, Mode=OneWay}" Foreground="Red"/></TextBlock>
         <TextBlock Text="SelectedItem:"/>
         <StackPanel Orientation="Horizontal" Background="DarkGray">
             <TextBlock Text="{Binding Current.Original.P1}" Width="60" />

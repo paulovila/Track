@@ -12,21 +12,21 @@ namespace Track
     public abstract class TrackItem : INotifyPropertyChanged
     {
         private readonly Dictionary<string, (string, object[])> _errors;
-        private bool _hasValidations;
+        private bool _hasErrors;
 
         public TrackItem() => _errors = new Dictionary<string, (string, object[])>();
 
-        public bool HasValidations
+        public bool HasErrors
         {
-            get => _hasValidations;
+            get => _hasErrors;
             protected set
             {
-                SetProperty(ref _hasValidations, value);
-                OnPropertyChanged(nameof(FirstValidation));
+                SetProperty(ref _hasErrors, value);
+                OnPropertyChanged(nameof(FirstError));
             }
         }
 
-        public string FirstValidation => Validations.FirstOrDefault();
+        public string FirstError => Validations.FirstOrDefault();
         public IEnumerable<string> Validations => _errors.Values.Select(er => string.Format(er.Item1, er.Item2));
         public abstract bool IsModifiedNull { get; }
         public event PropertyChangedEventHandler PropertyChanged;
@@ -56,7 +56,7 @@ namespace Track
                 _errors.Clear();
             else
                 OnRefreshErrors();
-            HasValidations = IsModifiedNull || _errors.Any();
+            HasErrors = IsModifiedNull || _errors.Any();
             OnPropertyChanged(nameof(Validations));
         }
 
