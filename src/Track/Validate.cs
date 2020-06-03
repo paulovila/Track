@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 
 namespace Track
 {
@@ -51,7 +50,7 @@ namespace Track
         }
 
         private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e) => Notify();
-
+        
         public abstract void OnRefreshErrors();
 
         public void UpdateError(string path, bool isError, string template, params object[] pars)
@@ -70,8 +69,8 @@ namespace Track
 
         public void IsRequired(Expression<Func<T, object>> propertyFunc)
         {
-            var (path, val) = GetPathValue(propertyFunc);
-            UpdateError(path, IsNullOrEmpty(val), "{0} is required", path.Beautify());
+            var path = propertyFunc.GetPropertyName();
+            UpdateError(path, IsNullOrEmpty(propertyFunc.Compile()(Item.Modified)), "{0} is required", path.Beautify());
         }
 
         public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> itemsFunc, int i)
@@ -85,14 +84,6 @@ namespace Track
 
         private bool IsNullOrEmpty(object obj) => obj == null || obj is string s && string.IsNullOrEmpty(s);
 
-        private (string, object) GetPathValue(Expression<Func<T, object>> expression)
-        {
-            var propertyInfo = expression.Body is UnaryExpression body ?
-                (body.Operand is MemberExpression operand ? operand.Member : null) as PropertyInfo
-                :
-                (expression.Body is MemberExpression body1 ? body1.Member : null) as PropertyInfo;
-            return (propertyInfo?.Name ?? expression.ToString(), expression.Compile()(Item.Modified));
-        }
     }
 
     public abstract class Validate : INotifyPropertyChanged

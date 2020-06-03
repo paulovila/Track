@@ -6,15 +6,21 @@ using System.Runtime.CompilerServices;
 
 namespace Track
 {
-    public class TrackItem<T> : INotifyPropertyChanged
+    public class TrackItem : INotifyPropertyChanged
+    {
+        public ITrackItems Parent { get; internal set; }
+        public TrackItem(ITrackItems parent) => Parent = parent;
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = null) => 
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+    public class TrackItem<T> : TrackItem
         where T : INotifyPropertyChanged, ICloneable
     {
         public T Original { get; set; }
-
-        public TrackItem(T original, TrackItems<T> parent)
+        public TrackItem(T original, TrackItems<T> parent): base(parent)
         {
             Original = original;
-            Parent = parent;
             Modified = (T)original?.Clone();
             if (Modified != null)
                 Modified.PropertyChanged += Modified_PropertyChanged;
@@ -22,9 +28,7 @@ namespace Track
 
         public bool HasChanges => GetHasChanges(Original);
         public T Modified { get; }
-        public TrackItems<T> Parent { get; internal set; }
-        public event PropertyChangedEventHandler PropertyChanged;
-
+      
         internal bool GetHasChanges(T item) =>
             Parent.Properties.Any(p => HasChangesPredicate(p, item));
 
@@ -40,9 +44,6 @@ namespace Track
             OnPropertyChanged(nameof(HasChanges));
             Parent.RaiseHasCollectionChanges(this, e.PropertyName);
         }
-
-        private void OnPropertyChanged([CallerMemberName] string propertyName = null) =>
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         public void ResetOriginal(T originalChanged)
         {

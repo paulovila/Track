@@ -6,9 +6,15 @@ using System.Reflection;
 
 namespace Track
 {
-    public sealed class TrackItems<T> : ObservableCollection<TrackItem<T>> where T : INotifyPropertyChanged, ICloneable
+    public interface ITrackItems
     {
-        internal readonly PropertyInfo[] Properties;
+        PropertyInfo[] Properties { get; }
+        void RaiseHasCollectionChanges(TrackItem item, string propertyName);
+    }
+    public sealed class TrackItems<T> : ObservableCollection<TrackItem<T>>, ITrackItems
+        where T : INotifyPropertyChanged, ICloneable
+    {
+        public PropertyInfo[] Properties { get; }
         private readonly T[] _originalItems;
 
         public TrackItems(T[] items, PropertyInfo[] trackProperties)
@@ -18,7 +24,7 @@ namespace Track
                 .Where(w => w.SetMethod != null).ToArray();
 
             foreach (var item in items)
-                Add(new TrackItem<T>(item, this) { Parent = this });
+                Add(new TrackItem<T>(item, this));
             CollectionChanged += (s, e) => RaiseHasCollectionChanges(null, null);
         }
 
@@ -44,11 +50,11 @@ namespace Track
             }
             return trackItemsChanged.Any();
         }
-        public void RaiseHasCollectionChanges(TrackItem<T> item, string propertyName)
+        public void RaiseHasCollectionChanges(TrackItem item, string propertyName)
         {
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
             if (item != null && propertyName != null)
-                ItemPropertyChanged?.Invoke(this, new TrackItemEvent<T> { Item = item, PropertyNameChanged = propertyName });
+                ItemPropertyChanged?.Invoke(this, new TrackItemEvent<T> { Item = item as TrackItem<T>, PropertyNameChanged = propertyName });
         }
         public EventHandler<TrackItemEvent<T>> ItemPropertyChanged { get; set; }
 

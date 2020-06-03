@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 
@@ -26,5 +27,13 @@ namespace Track
             return text.CapitalsIntoWords();
         }
         public static string CapitalsIntoWords(this string text)=> string.Join(" ",  Regex.Split(text, @"(?<!^)(?=[A-Z])"));
+
+        public static  string GetPropertyName<T>(this Expression<Func<T, object>> expression)
+        {
+            var p= expression.Body is UnaryExpression body
+                ? (body.Operand is MemberExpression operand ? operand.Member : null) as PropertyInfo
+                : (expression.Body is MemberExpression body1 ? body1.Member : null) as PropertyInfo;
+            return p?.Name ?? expression.ToString();
+        }
     }
 }
