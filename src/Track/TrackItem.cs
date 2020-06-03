@@ -28,7 +28,7 @@ namespace Track
             }
         }
 
-        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
+        public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged = delegate { };
 
         public string FirstError => Validations.FirstOrDefault();
         public IEnumerable<string> Validations => _errors.Values.Select(er => string.Format(er.Item1, er.Item2));
