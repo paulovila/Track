@@ -10,23 +10,15 @@ namespace Track.UnitTests
         [TestMethod]
         public void ShouldValidate()
         {
-            var sut = new Test1Validate { Item = new E().ToTrack() };
+            var sut = new E().ToTrack(q => q.IsRequired(w => w.P1));
 
             Assert.IsTrue(sut.HasValidations);
 
-            sut.Item.Modified.P1 = "A";
+            sut.Modified.P1 = "A";
             Assert.IsFalse(sut.HasValidations);
 
-            sut.Item.Modified.P1 = null;
+            sut.Modified.P1 = null;
             Assert.IsTrue(sut.HasValidations);
-        }
-
-        public class Test1Validate : Validate<E>
-        {
-            public override void OnRefreshErrors()
-            {
-                IsRequired(w => w.P1);
-            }
         }
 
         public class E : INotifyPropertyChanged, ICloneable

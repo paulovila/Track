@@ -26,7 +26,7 @@ namespace Track.UnitTests
         {
             var e1 = new E1 { P1 = "A" };
             Expression<Func<E1, object>>[] f = { w => w.P1 };
-            var sut = e1.ToTrack(GetPropertyInfos(f));
+            var sut = e1.ToTrack(null, GetPropertyInfos(f));
             sut.Modified.P3 = "G";
             Assert.AreEqual(sut.Modified.P1, e1.P1);
             Assert.IsFalse(sut.HasChanges);
@@ -53,7 +53,7 @@ namespace Track.UnitTests
         {
             var items = new[] { new E1 { P1 = "A" }, new E1 { P1 = "A" } };
             var f = new Expression<Func<E1, object>>[] { w => w.P1 };
-            var sut = items.ToTrackItems(GetPropertyInfos(f));
+            var sut = items.ToTrackItems(null, GetPropertyInfos(f));
 
             Assert.IsFalse(sut.HasCollectionChanges);
             sut[0].Modified.P1 = "A1";
@@ -78,7 +78,7 @@ namespace Track.UnitTests
         {
             var items = new[] { new E1 { P1 = "A" }, null, new E1 { P1 = "A" } };
             var f = new Expression<Func<E1, object>>[] { w => w.P1 };
-            var sut = items.ToTrackItems(GetPropertyInfos(f));
+            var sut = items.ToTrackItems(null, GetPropertyInfos(f));
 
             Assert.IsFalse(sut.HasCollectionChanges);
             sut[0].Modified.P1 = "A1";

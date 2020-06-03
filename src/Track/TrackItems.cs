@@ -6,22 +6,19 @@ using System.Reflection;
 
 namespace Track
 {
-    public interface ITrackItems
-    {
-        PropertyInfo[] Properties { get; }
-        void RaiseHasCollectionChanges(TrackItem item, string propertyName);
-    }
-    public sealed class TrackItems<T> : ObservableCollection<TrackItem<T>>, ITrackItems
+    public class TrackItems<T> : ObservableCollection<TrackItem<T>>
         where T : INotifyPropertyChanged, ICloneable
     {
         public PropertyInfo[] Properties { get; }
         private readonly T[] _originalItems;
+        internal readonly Action<TrackItem<T>> ValidationAction;
 
-        public TrackItems(T[] items, PropertyInfo[] trackProperties)
+        public TrackItems(T[] items, Action<TrackItem<T>> validationAction, PropertyInfo[] trackProperties)
         {
             _originalItems = items;
+            ValidationAction = validationAction;
             Properties = trackProperties ?? typeof(T).GetProperties()
-                .Where(w => w.SetMethod != null).ToArray();
+                             .Where(w => w.SetMethod != null).ToArray();
 
             foreach (var item in items)
                 Add(new TrackItem<T>(item, this));
@@ -60,7 +57,7 @@ namespace Track
 
         public new void Add(TrackItem<T> item)
         {
-            item.Parent = this;
+            item._parent = this;
             base.Add(item);
         }
         public int ModifiedPropertiesCount() =>
