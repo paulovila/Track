@@ -23,7 +23,7 @@ namespace Track
             get => _hasErrors;
             protected set
             {
-                SetProperty(ref _hasErrors, value);
+                SetProperty(ref _hasErrors, value, nameof(HasErrors));
                 OnPropertyChanged(nameof(FirstError));
             }
         }
@@ -93,10 +93,14 @@ namespace Track
         where T : INotifyPropertyChanged, ICloneable
     {
         public TrackItems<T> Parent;
-
-        public TrackItem(T original, TrackItems<T> parent)
+        public void Initialise(T original, Action<TrackItem<T>> validationAction, TrackItems<T> parent, PropertyInfo[] trackProperties = null)
         {
-            Parent = parent;
+            Parent = parent ?? new TrackItems<T>(new[] { original }, validationAction, trackProperties);
+            Reset(original);
+        }
+
+        public void Reset(T original)
+        {
             Original = original;
             Modified = (T)original?.Clone();
             if (Modified == null) return;
@@ -106,7 +110,7 @@ namespace Track
 
         public T Original { get; set; }
         public bool HasChanges => GetHasChanges(Original);
-        public T Modified { get; }
+        public T Modified { get; set; }
         public override bool IsModifiedNull => Modified == null;
         public override void OnRefreshErrors() => Parent.ValidationAction?.Invoke(this);
         ~TrackItem()

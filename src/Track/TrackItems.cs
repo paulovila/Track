@@ -11,7 +11,7 @@ namespace Track
     {
         public PropertyInfo[] Properties { get; }
         private readonly T[] _originalItems;
-        internal readonly Action<TrackItem<T>> ValidationAction;
+        public Action<TrackItem<T>> ValidationAction { get; set; }
 
         public TrackItems(T[] items, Action<TrackItem<T>> validationAction, PropertyInfo[] trackProperties)
         {
@@ -21,7 +21,11 @@ namespace Track
                              .Where(w => w.SetMethod != null).ToArray();
 
             foreach (var item in items)
-                Add(new TrackItem<T>(item, this));
+            {
+                var ti = new TrackItem<T>();
+                ti.Initialise(item, validationAction, this, trackProperties);
+                Add(ti);
+            }
             CollectionChanged += (s, e) => RaiseHasCollectionChanges(null, null);
         }
 

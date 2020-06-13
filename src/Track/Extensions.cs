@@ -11,8 +11,12 @@ namespace Track
     public static class Extensions
     {
         public static TrackItem<T> ToTrack<T>(this T item, Action<TrackItem<T>> validationAction = null, PropertyInfo[] trackProperties = null)
-            where T : INotifyPropertyChanged, ICloneable =>
-            new TrackItem<T>(item, new TrackItems<T>(new[] { item }, validationAction, trackProperties));
+            where T : INotifyPropertyChanged, ICloneable
+        {
+            var ti = new TrackItem<T>();
+            ti.Initialise(item, validationAction, null, trackProperties);
+            return ti;
+        }
 
         public static TrackItems<T> ToTrackItems<T>(this IEnumerable<T> items, Action<TrackItem<T>> validationAction = null,
             PropertyInfo[] trackProperties = null)
