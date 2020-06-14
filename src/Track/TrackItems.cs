@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -38,8 +39,8 @@ namespace Track
 
         private bool ItemsChanged()
         {
-            var originalsChanged = _originalItems.Where(w => !this.Select(g => g.Original).Contains(w)).ToList();
-            var trackItemsChanged = this.Where(w => w != null && !_originalItems.Contains(w.Original)).ToList();
+            var originalsChanged = _originalItems.Where(w => this.All(g => !EqualityComparer<T>.Default.Equals(g.Original, w))).ToList();
+            var trackItemsChanged = this.Where(w => w != null && _originalItems.All(q => !EqualityComparer<T>.Default.Equals(q, w.Original))).ToList();
             foreach (var originalChanged in originalsChanged)
             {
                 var similarTrackItemChanged = trackItemsChanged.FirstOrDefault(w => !w.GetHasChanges(originalChanged));

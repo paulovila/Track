@@ -156,14 +156,7 @@ namespace Track
             var (path, value) = PathValue(expression);
             UpdateError(path, !string.IsNullOrEmpty(value) && value.ToUpperInvariant() != value, message);
         }
-        public void HasAtLeastItems<TItem>(Expression<Func<T, IEnumerable<TItem>>> expression, int i)
-        {
-            var (path, value) = PathValue(expression);
-            var entityName = typeof(TItem).Name;
-            var verb = i == 1 ? "is" : "are";
-            UpdateError(path, value.Count() < i, "At least {0} {1} {2} needed", i, entityName,
-                verb);
-        }
+
         public void HasItemsMessage(Expression<Func<T, IEnumerable>> expression, string message)
         {
             var (path, value) = PathValue(expression);
