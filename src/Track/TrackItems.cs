@@ -54,6 +54,8 @@ namespace Track
         }
         public void RaiseHasCollectionChanges(TrackItem item, string propertyName)
         {
+            if (Properties?.All(p => p.Name != propertyName) == true)
+                return;
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
             if (item != null && propertyName != null)
                 ItemPropertyChanged?.Invoke(this, new TrackItemEvent<T> { Item = item as TrackItem<T>, PropertyNameChanged = propertyName });
