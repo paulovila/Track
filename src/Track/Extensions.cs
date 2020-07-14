@@ -10,18 +10,23 @@ namespace Track
 {
     public static class Extensions
     {
-        public static TrackItem<T> ToTrack<T>(this T item, Action<TrackItem<T>> validationAction = null, PropertyInfo[] trackProperties = null)
+        public static TrackItem<T> ToTrack<T>(this T item, Action<TrackItem<T>> validationAction = null, TrackItems<T> parent = null, PropertyInfo[] trackProperties = null)
             where T : INotifyPropertyChanged, ICloneable
         {
             var ti = new TrackItem<T>();
-            ti.Initialise(item, validationAction, null, trackProperties);
+            ti.Initialise(item, parent, validationAction, trackProperties);
             return ti;
         }
 
         public static TrackItems<T> ToTrackItems<T>(this IEnumerable<T> items, Action<TrackItem<T>> validationAction = null,
             PropertyInfo[] trackProperties = null)
-            where T : INotifyPropertyChanged, ICloneable =>
-            new TrackItems<T>(items.ToArray(), validationAction, trackProperties);
+            where T : INotifyPropertyChanged, ICloneable
+        {
+            var t = new TrackItems<T>(items.ToArray(), validationAction, trackProperties);
+            t.InitCollectionChanged();
+            return t;
+        }
+
         public static string Beautify(this string path)
         {
             var text = path;

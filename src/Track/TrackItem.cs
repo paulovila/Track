@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Track
 {
-    public abstract class TrackItem : INotifyPropertyChanged, INotifyDataErrorInfo
+    public abstract class TrackItem : INotifyPropertyChanged
     {
         private readonly Dictionary<string, (string, object[])> _errors;
         private bool _hasErrors;
@@ -89,11 +89,11 @@ namespace Track
         }
     }
 
-    public class TrackItem<T> : TrackItem
+    public class TrackItem<T> : TrackItem, ITrackError
         where T : INotifyPropertyChanged, ICloneable
     {
         public TrackItems<T> Parent;
-        public void Initialise(T original, Action<TrackItem<T>> validationAction, TrackItems<T> parent, PropertyInfo[] trackProperties = null)
+        public void Initialise(T original, TrackItems<T> parent = null, Action<TrackItem<T>> validationAction = null, PropertyInfo[] trackProperties = null)
         {
             Parent = parent ?? new TrackItems<T>(new[] { original }, validationAction, trackProperties);
             Reset(original);
