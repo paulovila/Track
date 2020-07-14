@@ -26,7 +26,7 @@ namespace Track.UnitTests
         {
             var e1 = new E1 { P1 = "A" };
             Expression<Func<E1, object>>[] f = { w => w.P1 };
-            var sut = e1.ToTrack(null, GetPropertyInfos(f));
+            var sut = e1.ToTrack(null,null, GetPropertyInfos(f));
             sut.Modified.P3 = "G";
             Assert.AreEqual(sut.Modified.P1, e1.P1);
             Assert.IsFalse(sut.HasChanges);
