@@ -26,7 +26,7 @@ namespace Track.UnitTests
         {
             var e1 = new E1 { P1 = "A" };
             Expression<Func<E1, object>>[] f = { w => w.P1 };
-            var sut = e1.ToTrack(null,null, GetPropertyInfos(f));
+            var sut = e1.ToTrack(null, null, GetPropertyInfos(f));
             sut.Modified.P3 = "G";
             Assert.AreEqual(sut.Modified.P1, e1.P1);
             Assert.IsFalse(sut.HasChanges);
@@ -86,6 +86,7 @@ namespace Track.UnitTests
             sut[0].Modified.P1 = "A";
             Assert.IsFalse(sut.HasCollectionChanges);
         }
+
         [TestMethod]
         public void ShouldHaveChangesInCollectionWithNullElement()
         {
@@ -97,6 +98,7 @@ namespace Track.UnitTests
             sut[0].Modified.P1 = "A";
             Assert.IsFalse(sut.HasCollectionChanges);
         }
+
         [TestMethod]
         public void ShouldNotHaveChangesAfterAnElementIsReplaced()
         {
@@ -111,6 +113,7 @@ namespace Track.UnitTests
             item3.Modified.P1 = "B";
             Assert.IsFalse(sut.HasCollectionChanges);
         }
+
         [TestMethod]
         public void ShouldHaveSomePropertiesChanged()
         {
@@ -141,6 +144,18 @@ namespace Track.UnitTests
             sut.ItemPropertyChanged += (s, e) => called++;
             sut[0].Modified.P1 = "S";
             Assert.AreEqual(1, called);
+        }
+        [TestMethod]
+        public void ShouldAcceptChanges()
+        {
+            var item = new E1 { P1 = "A" };
+            var sut = new TrackItem<E1>();
+            sut.Initialise(item);
+            sut.Modified.P1 = "B";
+
+            Assert.AreEqual("A", sut.Original.P1);
+            sut.AcceptChanges();
+            Assert.AreEqual("B", sut.Original.P1);
         }
 
         public class E1 : INotifyPropertyChanged, ICloneable

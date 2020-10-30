@@ -173,6 +173,12 @@ namespace Track
             UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
         }
         private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
-
+        public void AcceptChanges()
+        {
+            var props =  typeof(T).GetProperties()
+                .Where(w => w.SetMethod != null).ToArray();
+            foreach (var prop in props)
+                prop.SetValue(Original, prop.GetValue(Modified));
+        }
     }
 }
