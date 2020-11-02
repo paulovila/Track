@@ -9,7 +9,7 @@ using System.Runtime.CompilerServices;
 
 namespace Track
 {
-    public abstract class TrackItem : INotifyPropertyChanged
+    public abstract class TrackItem : INotifyPropertyChanged, INotifyDataErrorInfo
     {
         private readonly Dictionary<string, (string, object[])> _errors;
         private bool _hasErrors;
