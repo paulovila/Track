@@ -175,9 +175,7 @@ namespace Track
         private (string, TItem) PathValue<TItem>(Expression<Func<T, TItem>> expression) => (expression.GetPropertyName(), expression.Compile()(Modified));
         public void AcceptChanges()
         {
-            var props =  typeof(T).GetProperties()
-                .Where(w => w.SetMethod != null).ToArray();
-            foreach (var prop in props)
+            foreach (var prop in Parent.Properties)
                 prop.SetValue(Original, prop.GetValue(Modified));
         }
     }
