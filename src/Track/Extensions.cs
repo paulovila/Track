@@ -15,6 +15,7 @@ namespace Track
         {
             var ti = new TrackItem<T>();
             ti.Initialise(item, parent, validationAction, trackProperties);
+            ti.Parent.Add(ti);
             return ti;
         }
 

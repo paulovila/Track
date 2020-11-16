@@ -97,6 +97,7 @@ namespace Track
         {
             Parent = parent ?? new TrackItems<T>(new[] { original }, validationAction, trackProperties);
             Reset(original);
+            Notify();
         }
 
         public void Reset(T original)
@@ -105,7 +106,6 @@ namespace Track
             Modified = (T)original?.Clone();
             if (Modified == null) return;
             Modified.PropertyChanged += Modified_PropertyChanged;
-            Notify();
         }
 
         public T Original { get; set; }
@@ -127,9 +127,10 @@ namespace Track
         }
         private void Modified_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            foreach (var trackItem in Parent)
+                trackItem.Notify();
             OnPropertyChanged(nameof(HasChanges));
             Parent.RaiseHasCollectionChanges(this, e.PropertyName);
-            Notify();
         }
         public void ResetOriginal(T originalChanged)
         {

@@ -76,12 +76,19 @@ namespace Track
 
         public EventHandler<TrackItemEvent<T>> ItemPropertyChanged { get; set; }
 
-        public new void Add(TrackItem<T> item)
+        public new void Add(TrackItem<T> trackItem)
         {
-            item.Parent = this;
-            base.Add(item);
+            trackItem.Parent = this;
+            base.Add(trackItem);
         }
 
+        public new void Remove(TrackItem<T> trackItem)
+        {
+            base.Remove(trackItem);
+            foreach (var item in this)
+                item.Notify();
+            Notify();
+        }
         public int ModifiedPropertiesCount() =>
             this
                 .Where(w => w != null && w.HasChanges)
@@ -90,7 +97,7 @@ namespace Track
                         .Count(propertyInfo => trackObject.HasChangesPredicate(propertyInfo, trackObject.Original)));
 
         public ObservableCollection<T> GetCollection() => new ObservableCollection<T>(this.Select(w => w.Modified).ToList());
-        public IEnumerable GetErrors(string propertyName) => this.Select(w => w.FirstError);
+        public IEnumerable GetErrors(string propertyName) => this.Select(w => w.FirstError).Where(w => w != null).ToArray();
         public bool HasErrors => this.Any(w => w.HasErrors);
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
         public bool HasChanges => this.Any(w => w.HasChanges);
@@ -103,6 +110,17 @@ namespace Track
             _originalItems = items.ToArray();
             InitCollectionChanged();
             OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+        }
+
+        public TrackItem<T> AddItem(T item, int position = 0)
+        {
+            var ti = new TrackItem<T> { Parent = this };
+            ti.Reset(item);
+            InsertItem(position, ti);
+            foreach (var trackItem in this)
+                trackItem.Notify();
+            Notify();
+            return ti;
         }
     }
 }
