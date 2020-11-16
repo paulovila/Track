@@ -158,6 +158,18 @@ namespace Track.UnitTests
             Assert.AreEqual("B", sut.Original.P1);
         }
 
+        [TestMethod]
+        public void ShouldAddRemoveItems()
+        {
+            var items = new[] { new E { P1 = "A" } }
+                .ToTrackItems(w => w.UpdateError("w", w.Parent.Count < 2, "required More than one"));
+            Assert.IsTrue(items.HasErrors);
+            var trackItem = items.AddItem(new E());
+            Assert.IsFalse(items.HasErrors);
+            items.Remove(trackItem);
+            Assert.IsTrue(items.HasErrors);
+        }
+
         public class E1 : INotifyPropertyChanged, ICloneable
         {
             private string _p1;
