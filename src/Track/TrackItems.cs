@@ -25,6 +25,8 @@ namespace Track
 
             CompareFunc = (a, b) => EqualityComparer<T>.Default.Equals(a, b);
         }
+
+        private bool _init;
         public void InitCollectionChanged()
         {
             foreach (var item in _originalItems)
@@ -33,7 +35,8 @@ namespace Track
                 ti.Initialise(item, this);
                 base.Add(ti);
             }
-            CollectionChanged += (s, e) => RaiseHasCollectionChanges(null, null);
+            CollectionChanged += TrackItems_CollectionChanged;
+            _init = true;
             RaiseHasCollectionChanges(null, null);
         }
 
@@ -102,7 +105,13 @@ namespace Track
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
         public bool HasChanges => this.Any(w => w.HasChanges);
         public string FirstError => this.FirstOrDefault(w => w.HasErrors)?.FirstError;
-        public void Notify() => ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(""));
+
+        public void Notify()
+        {
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(""));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasChanges)));
+            OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
+        }
 
         public void Refresh(IEnumerable<T> items)
         {
@@ -121,6 +130,17 @@ namespace Track
                 trackItem.Notify();
             Notify();
             return ti;
+        }
+        private void TrackItems_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e) => RaiseHasCollectionChanges(null, null);
+
+        public void Disconnect()
+        {
+            if (_init)
+            {
+                CollectionChanged -= TrackItems_CollectionChanged;
+                _init = false;
+            }
+            Clear();
         }
     }
 }
