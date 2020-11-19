@@ -6,6 +6,6 @@ namespace Track
     {
         bool HasChanges { get; }
         string FirstError { get; }
-        void Notify();
+        void Notify(string propertyName);
     }
 }

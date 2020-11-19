@@ -46,7 +46,7 @@ namespace Track
         private void Modified_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             foreach (var trackItem in Parent)
-                trackItem.Notify();
+                trackItem.Notify(e.PropertyName);
             OnPropertyChanged(nameof(HasChanges));
             Parent.RaiseHasCollectionChanges(this, e.PropertyName);
         }

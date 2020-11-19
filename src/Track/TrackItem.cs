@@ -55,23 +55,23 @@ namespace Track
 
         public void UpdateError(string path, bool isError, string template, params object[] pars)
         {
-            var key = $"{path}#{template}";
+            var key = $"Modified.{path}#{template}";
             if (isError)
                 _errors[key] = (template, pars);
             else if (_errors.ContainsKey(key))
                 _errors.Remove(key);
         }
 
-        public void UpdateWarn(PropertyInfo[] properties, bool isWarning, string template, params object[] pars)
+        public void UpdateWarn(string path, PropertyInfo[] properties, bool isWarning, string template, params object[] pars)
         {
-            var key = template;
+            var key = $"Modified.{path}#{template}";
             if (isWarning)
                 _warnings[key] = (properties, template, pars);
             else if (_warnings.ContainsKey(key))
                 _warnings.Remove(key);
         }
 
-        public void Notify()
+        public void Notify(string propertyName = null)
         {
             if (IsModifiedNull)
                 _errors.Clear();
@@ -79,39 +79,28 @@ namespace Track
                 OnRefreshErrors();
             HasErrors = IsModifiedNull || _errors.Any();
             OnPropertyChanged(nameof(Validations));
-            RaiseError(null);
+            RaiseError(propertyName);
         }
 
         public IEnumerable<TrackResult> GetValidations(string path)
         {
-            IEnumerable<TrackResult> v;
-            if (path == null)
-            {
-                v = _errors.Values.Select(er => new TrackResult {Message = string.Format(er.Item1, er.Item2)});
-            }
-            else
-            {
-                var prefix = path + "#";
-                v = _errors.Keys
-                    .Where(w => w.StartsWith(prefix))
-                    .Select(key =>
+            bool Filter(string p) => string.IsNullOrEmpty(path) || p.StartsWith(path + "#");
+            return _errors
+                .Keys
+                .Where(Filter)
+                .Select(key => new TrackResult { Message = string.Format(_errors[key].Item1, _errors[key].Item2) })
+                .Union(_warnings.Where(w => Filter(w.Key))
+                    .Select(k => new TrackResult
                     {
-                        var t = _errors[key];
-                        return new TrackResult {Message = string.Format(t.Item1, t.Item2)};
-                    });
-            }
-
-            return v.Union(_warnings
-                .Select(k => new TrackResult
-                {
-                    Message = string.Format(k.Value.Item2, k.Value.Item3),
-                    ConfirmAction = () =>
-                    {
-                        if (_warnings.ContainsKey(k.Key))
-                            _warnings.Remove(k.Key);
-                        ConfirmChanges(k.Value.Item1);
-                    }
-                }));
+                        Message = string.Format(k.Value.Item2, k.Value.Item3),
+                        ConfirmAction = () =>
+                        {
+                            if (_warnings.ContainsKey(k.Key))
+                                _warnings.Remove(k.Key);
+                            ConfirmChanges(k.Value.Item1);
+                        }
+                    }))
+                .ToArray();
         }
 
         protected abstract void ConfirmChanges(PropertyInfo[] properties = null);

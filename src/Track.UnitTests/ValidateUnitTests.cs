@@ -138,26 +138,26 @@ namespace Track.UnitTests
 
             Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(3, sut.Validations.Count());
-            Assert.AreEqual(1, sut.GetValidations("Items").Count());
-            Assert.AreEqual(2, sut.GetValidations("Name").Count());
+            Assert.AreEqual(1, sut.GetValidations("Modified.Items").Count());
+            Assert.AreEqual(2, sut.GetValidations("Modified.Name").Count());
 
             sut.Modified.Items = new List<string> { "item" };
             Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(2, sut.Validations.Count());
-            Assert.AreEqual(0, sut.GetValidations("Items").Count());
-            Assert.AreEqual(2, sut.GetValidations("Name").Count());
+            Assert.AreEqual(0, sut.GetValidations("Modified.Items").Count());
+            Assert.AreEqual(2, sut.GetValidations("Modified.Name").Count());
 
             sut.Modified.Name = "aaa";
             Assert.IsTrue(sut.HasErrors);
             Assert.AreEqual(1, sut.Validations.Count());
-            Assert.AreEqual(0, sut.GetValidations("Items").Count());
-            Assert.AreEqual(1, sut.GetValidations("Name").Count());
+            Assert.AreEqual(0, sut.GetValidations("Modified.Items").Count());
+            Assert.AreEqual(1, sut.GetValidations("Modified.Name").Count());
 
             sut.Modified.Name = "Es";
             Assert.IsFalse(sut.HasErrors);
             Assert.AreEqual(0, sut.Validations.Count());
-            Assert.AreEqual(0, sut.GetValidations("Items").Count());
-            Assert.AreEqual(0, sut.GetValidations("Name").Count());
+            Assert.AreEqual(0, sut.GetValidations("Modified.Items").Count());
+            Assert.AreEqual(0, sut.GetValidations("Modified.Name").Count());
         }
     }
 }

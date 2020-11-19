@@ -71,10 +71,8 @@ namespace Track
                 return;
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
             if (item != null && propertyName != null)
-            {
                 ItemPropertyChanged?.Invoke(this, new TrackItemEvent<T> { Item = item as TrackItem<T>, PropertyNameChanged = propertyName });
-                ErrorsChanged?.Invoke(item, new DataErrorsChangedEventArgs(propertyName));
-            }
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(nameof(HasErrors)));
         }
 
         public EventHandler<TrackItemEvent<T>> ItemPropertyChanged { get; set; }
@@ -106,9 +104,9 @@ namespace Track
         public bool HasChanges => this.Any(w => w.HasChanges);
         public string FirstError => this.FirstOrDefault(w => w.HasErrors)?.FirstError;
 
-        public void Notify()
+        public void Notify(string propertyName = null)
         {
-            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(""));
+            ErrorsChanged?.Invoke(this, new DataErrorsChangedEventArgs(propertyName));
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasChanges)));
             OnPropertyChanged(new PropertyChangedEventArgs(nameof(HasCollectionChanges)));
         }
