@@ -100,7 +100,7 @@ namespace Track
                         .Count(propertyInfo => trackObject.HasChangesPredicate(propertyInfo, trackObject.Original)));
 
         public ObservableCollection<T> GetCollection() => new ObservableCollection<T>(this.Select(w => w.Modified).ToList());
-        public IEnumerable GetErrors(string propertyName) => this.Select(w => w.FirstError).Where(w => w != null).ToArray();
+        public IEnumerable GetErrors(string propertyName) => this.SelectMany(w => w.GetValidations(propertyName)).Where(w => w != null).ToArray();
         public bool HasErrors => this.Any(w => w.HasErrors);
         public event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
         public bool HasChanges => this.Any(w => w.HasChanges);

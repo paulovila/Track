@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -44,5 +45,42 @@ namespace Track
                 : (expression.Body is MemberExpression body1 ? body1.Member : null) as PropertyInfo;
             return p?.Name ?? expression.ToString();
         }
+        public static void IsRequired<T>(this TrackItem<T> t, Expression<Func<T, object>> expression) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, value == null || value is string s && string.IsNullOrEmpty(s), "{0} is required", path.Beautify());
+        }
+        public static void IsNotNegative<T>(this TrackItem<T> t, Expression<Func<T, int>> expression) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
+        }
+        public static void IsNotNegative<T>(this TrackItem<T> t, Expression<Func<T, decimal>> expression) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, value < 0, "{0} should be not negative", path.Beautify());
+        }
+        public static void IsPositiveMessage<T>(this TrackItem<T> t, Expression<Func<T, int>> expression, string message) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, value <= 0, message);
+        }
+        public static void HasItemsMessage<T>(this TrackItem<T> t, Expression<Func<T, IEnumerable>> expression, string message) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, value == null || !value.GetEnumerator().MoveNext(), message);
+        }
+        public static void IsRequiredMessage<T>(this TrackItem<T> t, Expression<Func<T, string>> expression, string message) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, string.IsNullOrEmpty(value), message);
+        }
+        public static void IsUpperCase<T>(this TrackItem<T> t, Expression<Func<T, string>> expression, string message) where T : INotifyPropertyChanged, ICloneable
+        {
+            var (path, value) = PathValue(expression, t);
+            t.UpdateError(path, !string.IsNullOrEmpty(value) && value.ToUpperInvariant() != value, message);
+        }
+
+        private static (string, TItem) PathValue<T, TItem>(Expression<Func<T, TItem>> expression, TrackItem<T> ti) where T : INotifyPropertyChanged, ICloneable => (expression.GetPropertyName(), expression.Compile()(ti.Modified));
     }
 }

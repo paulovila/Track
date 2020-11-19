@@ -169,6 +169,17 @@ namespace Track.UnitTests
             items.Remove(trackItem);
             Assert.IsTrue(items.HasErrors);
         }
+        //[TestMethod]
+        //public void ShouldConfirmChanges()
+        //{
+        //    var items = new[] { new E { P1 = "A" } }
+        //        .ToTrackItems(w => w.UpdateWarn("w", w.Parent.Count < 2, "required More than one"));
+        //    Assert.IsTrue(items.HasErrors);
+        //    var trackItem = items.AddItem(new E());
+        //    Assert.IsFalse(items.HasErrors);
+        //    items.Remove(trackItem);
+        //    Assert.IsTrue(items.HasErrors);
+        //}
 
         public class E1 : INotifyPropertyChanged, ICloneable
         {
