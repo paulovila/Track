@@ -129,6 +129,7 @@ namespace Track
                             var t = q.Value;
                             t.Item1 = true;
                             _emptyCollectionWarns[q.Key] = t;
+                            Notify(path);
                         }
                     }))
                 .ToArray();
