@@ -1,5 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Track.UnitTests
@@ -114,7 +117,7 @@ namespace Track.UnitTests
         [TestMethod]
         public void ShouldValidateCustom()
         {
-            var sut = new TestEntity().ToTrack(t=> 
+            var sut = new TestEntity().ToTrack(t =>
                 t.UpdateError("customRuleName", t.Modified.IntId % 2 == 0, "Id={0}, should be even", t.Modified.IntId));
 
             Assert.AreEqual(1, sut.Validations.Count());
@@ -130,7 +133,8 @@ namespace Track.UnitTests
         [TestMethod]
         public void ShouldGetErrorsByProperty()
         {
-            var sut = new TestEntity().ToTrack(t=> {
+            var sut = new TestEntity().ToTrack(t =>
+            {
                 t.HasItemsMessage(w => w.Items, "message1");
                 t.IsRequired(w => w.Name);
                 t.UpdateError("Name", t.Modified.Name == null || !t.Modified.Name.StartsWith("E"), "{0} should start with E", t.Modified.Name);
@@ -158,6 +162,37 @@ namespace Track.UnitTests
             Assert.AreEqual(0, sut.Validations.Count());
             Assert.AreEqual(0, sut.GetValidations("Modified.Items").Count());
             Assert.AreEqual(0, sut.GetValidations("Modified.Name").Count());
+        }
+        [TestMethod]
+        public void ShouldUpdateWarnNullCollection()
+        {
+            var sut = new TestEntity().ToTrack(t =>
+                t.UpdateWarnEmptyCollection(nameof(TestEntity.Items), () => t.Modified.Items2, "message1"));
+
+            var validations = sut.GetValidations(null);
+            Assert.AreEqual(1, validations.Count());
+            validations.First().ConfirmAction.Invoke();
+            validations = sut.GetValidations(null);
+            Assert.AreEqual(0, validations.Count());
+        }
+
+        [TestMethod]
+        public void ShouldUpdateWarnFilledCollection()
+        {
+            var sut = new TestEntity { Items2 = new List<int>() }.ToTrack(t =>
+                   t.UpdateWarnEmptyCollection(nameof(TestEntity.Items), () => t.Modified.Items2, "message1"));
+
+            var validations = sut.GetValidations(null);
+            Assert.AreEqual(1, validations.Count());
+            sut.Modified.Items2.Add(44);
+            sut.Notify();
+            validations = sut.GetValidations(null);
+            Assert.AreEqual(0, validations.Count());
+
+            sut.Modified.Items2.Clear();
+            sut.Notify();
+            validations = sut.GetValidations(null);
+            Assert.AreEqual(1, validations.Count());
         }
     }
 }

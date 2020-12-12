@@ -15,6 +15,10 @@ namespace Track
         private readonly Dictionary<string, (PropertyInfo[], string, object[])> _warnings =
             new Dictionary<string, (PropertyInfo[], string, object[])>();
 
+        private readonly Dictionary<string, (bool, string, object[])> _emptyCollectionWarns =
+            new Dictionary<string, (bool, string, object[])>();
+
+
         private bool _hasErrors;
         public string FirstError => Validations.FirstOrDefault();
         public IEnumerable<string> Validations => _errors.Values.Select(er => string.Format(er.Item1, er.Item2));
@@ -71,6 +75,21 @@ namespace Track
                 _warnings.Remove(key);
         }
 
+        public void UpdateWarnEmptyCollection<T>(string path, Func<IEnumerable<T>> collectionFunc, string template, params object[] pars)
+        {
+            var key = $"Modified.{path}#{template}";
+            var hasCollectionWarning = _emptyCollectionWarns.ContainsKey(key);
+            var collection = collectionFunc();
+            if (collection == null || !collection.Any())
+            {
+                if (!hasCollectionWarning)
+                    _emptyCollectionWarns[key] = (false, template, pars);
+
+            }
+            else if (hasCollectionWarning)
+                _emptyCollectionWarns.Remove(key);
+        }
+
         public void Notify(string propertyName = null)
         {
             if (IsModifiedNull)
@@ -98,6 +117,18 @@ namespace Track
                             if (_warnings.ContainsKey(k.Key))
                                 _warnings.Remove(k.Key);
                             ConfirmChanges(k.Value.Item1);
+                        }
+                    }))
+                .Union(_emptyCollectionWarns
+                    .Where(w => Filter(w.Key) && !w.Value.Item1)
+                    .Select(q => new TrackResult
+                    {
+                        Message = string.Format(q.Value.Item2, q.Value.Item3),
+                        ConfirmAction = () =>
+                        {
+                            var t = q.Value;
+                            t.Item1 = true;
+                            _emptyCollectionWarns[q.Key] = t;
                         }
                     }))
                 .ToArray();

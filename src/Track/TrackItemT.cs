@@ -31,6 +31,7 @@ namespace Track
         public T Confirmed { get; set; }
         public override bool IsModifiedNull => Modified == null;
         public override void OnRefreshErrors() => Parent.ValidationAction?.Invoke(this);
+     
         ~TrackItem()
         {
             if (!IsModifiedNull)

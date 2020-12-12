@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -12,6 +13,7 @@ namespace Track.UnitTests
         private string _name;
         private string _name2;
         private IEnumerable _items;
+        private ICollection<int> _items2;
 
         public int IntId
         {
@@ -58,6 +60,16 @@ namespace Track.UnitTests
             set
             {
                 _items = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICollection<int> Items2
+        {
+            get => _items2;
+            set
+            {
+                _items2 = value;
                 OnPropertyChanged();
             }
         }

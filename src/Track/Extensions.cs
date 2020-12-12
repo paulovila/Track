@@ -81,6 +81,7 @@ namespace Track
             t.UpdateError(path, !string.IsNullOrEmpty(value) && value.ToUpperInvariant() != value, message);
         }
 
-        private static (string, TItem) PathValue<T, TItem>(Expression<Func<T, TItem>> expression, TrackItem<T> ti) where T : INotifyPropertyChanged, ICloneable => (expression.GetPropertyName(), expression.Compile()(ti.Modified));
+        private static (string, TItem) PathValue<T, TItem>(Expression<Func<T, TItem>> expression, TrackItem<T> ti) where T : INotifyPropertyChanged, ICloneable
+            => (expression.GetPropertyName(), expression.Compile()(ti.Modified));
     }
 }
