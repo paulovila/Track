@@ -68,7 +68,10 @@ namespace Track
             foreach (var prop in properties ?? Parent.Properties)
                 prop.SetValue(Confirmed, prop.GetValue(Modified));
             if (!IsModifiedNull)
+            {
                 Parent.Notify();
+                Notify();
+            }
         }
     }
 }
